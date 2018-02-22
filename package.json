@@ -1,0 +1,24 @@
+{
+  "name": "micro-threads",
+  "version": "1.0.0",
+  "description": "Node Application to follow threads on micro.blog",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Amit Gawande",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0-rc.2",
+    "connect-flash": "^0.1.1",
+    "express": "^4.16.2",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.15.6",
+    "linkscrape": "^1.0.0",
+    "method-override": "^2.3.10",
+    "mongoose": "^5.0.6",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "request": "^2.83.0"
+  }
+}

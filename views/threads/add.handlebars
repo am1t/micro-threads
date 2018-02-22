@@ -1,0 +1,22 @@
+<div class="card card-body">
+    <h3>Add Threads</h3>
+    <form action="/micro/threads" method="post">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" name="title" value="{{title}}" required>
+        </div>
+        <div class="form-group">
+            <label for="details">Details</label>
+            <textarea class="form-control" name="details" value="{{details}}" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="details">Post Id</label>
+            <input type="text" class="form-control" name="post_id" value="{{post_id}}" required>
+        </div>
+        <div class="form-group">
+            <label for="details">Discover?</label>
+            <input type="checkbox" name="discover" aria-label="Discover">
+        </div>
+        <button class="btn btn-primary" type="Submit">Submit</button>        
+    </form>
+</div>

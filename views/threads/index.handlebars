@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="row">
+    {{#each threads}}
+        <div class="col-6 mb-3">
+            {{#if discover }}
+            <div class="discover_banner">
+                <a href="/micro/threads/{{_id}}/recommendations">{{title}}</a>
+            </div>
+            {{else}}
+            <div class="thread_banner">
+                <a href="/micro/threads/{{_id}}/recommendations">{{title}}</a>
+            </div>
+            {{/if}}
+        </div>
+    {{else}}
+        <p>No Thread Added Yet</p>
+    {{/each}}
+    </div>
+</div>

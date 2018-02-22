@@ -1,0 +1,86 @@
+html, body { height: 100%; border-top: 3px solid #24292e;}
+
+body{
+    font-family: "Libre Franklin";
+    font-size: 16px;
+}
+.site-title{
+    font-size: 35px;
+    color: #000;
+}
+
+.itch-item{
+    font-size: 20px;
+}
+
+.author-name{
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.thread_banner{
+    border: 1px solid #24292e;
+    font-size: 18px;
+    padding: 20px 20px;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    text-align: center;
+    background-color: #343a40;    
+}
+
+.thread_banner a { color: #fff; }
+.thread_banner a:hover { color: deepskyblue; }
+
+
+.discover_banner{
+    border: 1px solid #24292e;
+    font-size: 18px;
+    padding: 20px 20px;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    text-align: center;
+    background-color: crimson;    
+}
+
+.discover_banner a { color: #fff; }
+.discover_banner a:hover { color: deepskyblue; }
+
+
+.edit_rec {
+    float: right;
+    color: #0056b3;
+} 
+
+.recos{
+    border: 1px solid #24292e;
+}
+
+.recos_link{
+    font-size: 18px;
+    padding: 20px 20px;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    background-color: #343a40;
+}
+
+.recos_link a { color: #fff; }
+.recos_link a:hover { color: deepskyblue; }
+
+.recos_context{
+    color: #000;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 10px 10px;
+    background-color: #e9ecef;
+}
+
+.recos_context a { color: #0056b3; }
+.recos_context a:hover { color: red; }
+
+.rec_meta {
+    color: #666;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+    margin: 15px 0 0;
+}

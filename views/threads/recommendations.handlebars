@@ -1,0 +1,25 @@
+    <div class="container">
+        <div class="row">
+        {{#each recs}}
+            {{#if title}}
+                <div class="col-12 mb-3">
+                    <div class="recos">
+                        <p class="recos_link">
+                            <a href="{{url}}">{{title}}</a>
+                                <a href="/micro/recommendations/edit/{{_id}}" class="edit_rec">
+                                    Edit
+                                </a>
+                        </p>
+                        <div class="recos_context">{{{context}}} 
+                            <div class="rec_meta"> Recommended by {{author}} <a href="{{context_url}}">#</a> </div>
+                        </div>
+                    </div>
+                </div>
+            {{else}}
+            {{/if}}
+
+        {{else}}
+            
+        {{/each}}
+        </div>
+    </div>
