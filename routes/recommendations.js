@@ -9,7 +9,7 @@ const { fetch_links, fetch_title } = require('../helper/utils');
 require('../models/Recommendation');
 const Recommendation = mongoose.model('recommendations');
 
-//Edit Idea Form
+//Edit Recommendations Form
 router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     Recommendation.findById(req.params.id)
     .then(rec => {
@@ -17,6 +17,17 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
             rec: rec
         });
     });
+});
+
+//Delete Recommendations Form
+router.get('/delete/:id', ensureAuthenticated, (req, res) => {
+    Recommendation.remove({
+        _id: req.params.id
+    })
+    .then(() => {
+        req.flash('success_msg', 'Recommendation Removed');
+        res.redirect('/micro/threads');
+    });    
 });
 
 // Edit Form Process

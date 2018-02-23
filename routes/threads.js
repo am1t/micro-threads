@@ -21,7 +21,7 @@ const Recommendation = mongoose.model('recommendations');
 
 // Fetch Route
 router.get('/', (req, res) => {
-    Thread.find({discover:false})
+    Thread.find()
     .sort({date: 'desc'})
     .then(threads => {
         res.render('threads/index', {
@@ -41,6 +41,17 @@ router.get('/:id/recommendations', (req, res) => {
             });
         });
     })
+});
+
+//Edit Threads Form for refresh
+router.get('/edit', ensureAuthenticated, (req, res) => {
+    Thread.find()
+    .sort({date: 'desc'})
+    .then(threads => {
+        res.render('threads/edit', {
+            threads: threads
+        });
+    })    
 });
 
 //Add Threads Form

@@ -46,11 +46,6 @@ body{
 .discover_banner a:hover { color: deepskyblue; }
 
 
-.edit_rec {
-    float: right;
-    color: #0056b3;
-} 
-
 .recos{
     border: 1px solid #24292e;
 }
@@ -65,6 +60,14 @@ body{
 
 .recos_link a { color: #fff; }
 .recos_link a:hover { color: deepskyblue; }
+
+.edit_rec {
+    float: right;
+    color: #fff;
+    padding: 0px 3px;
+} 
+a.edit_rec { color: deepskyblue}
+a:hover.edit_rec { color: #fff}
 
 .recos_context{
     color: #000;

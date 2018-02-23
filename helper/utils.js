@@ -36,7 +36,7 @@ const fetch_links = function(items, thread_id, onComplete = null) {
                 var itemsProcessed = 0;
                 links.forEach((link, linkIndex) => {
                     let link_title = '';
-                    if(link.href.indexOf("micro.blog") == -1){
+                    if(link.href && link.href.indexOf("micro.blog") == -1){
                         recommendations.push({
                             title: link.text,
                             url: link.href,
