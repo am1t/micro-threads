@@ -6,12 +6,14 @@
                     <div class="recos">
                         <p class="recos_link">
                             <a href="{{url}}">{{title}}</a>
+                            {{#if ../user}}
                                 <a href="/micro/recommendations/delete/{{_id}}" class="edit_rec">
                                     Delete
                                 </a> <span class="edit_rec">|</span> 
                                 <a href="/micro/recommendations/edit/{{_id}}" class="edit_rec">
                                     Edit
                                 </a>
+                            {{/if}}
                         </p>
                         <div class="recos_context">{{{context}}} 
                             <div class="rec_meta"> Recommended by {{author}} <a href="{{context_url}}">#</a> </div>
