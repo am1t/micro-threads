@@ -5,7 +5,7 @@ const router = express.Router();
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const {ensureAuthenticated} = require('../helper/auth');
 
-const { fetch_links, fetch_title } = require('../helper/utils');
+const { fetch_links, fetch_title, remove_fetched } = require('../helper/utils');
 
 
 // Load Thread Model
@@ -51,6 +51,75 @@ router.get('/edit', ensureAuthenticated, (req, res) => {
         res.render('threads/edit', {
             threads: threads
         });
+    })    
+});
+
+//Edit Threads Form for refresh
+router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
+    Thread.findById(req.params.id)
+    .sort({date: 'desc'})
+    .then(thread => {
+        let errors = [];
+        let post_link = '';
+        if(thread.discover == true){
+            post_link = 'http://micro.blog/posts/discover/' + thread.postId;
+        } else{
+            post_link = 'http://micro.blog/posts/conversation?id=' + thread.postId;
+        }
+
+        console.log(post_link);
+        request.get({
+            url: post_link, 
+            headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+            }, function (error, response, body) {
+            var thread_items = JSON.parse(body);
+            if(error){
+                errors.push("Failed to fetch thread " + error);
+                res.render('/', {
+                    errors: errors
+                })
+            } else {
+                remove_fetched(thread_items.items, function(items){
+                    if(items.length == 0){
+                        console.log("No items to be parsed for recommendations");
+                        req.flash('info_msg', 'No new recommendations posted yet');
+                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
+                    }
+                    fetch_links(items, thread.id, function(recs){
+                        var recommendations = [];
+                        recs.forEach((link, linkIndex) => {
+                            fetch_title(link.url, function(output){
+                                var temp_title = '';
+                                if(output.title) temp_title = output.title; 
+                                else temp_title = link.title;
+    
+                                const newRecommendation = {
+                                    thread_id: thread.id,
+                                    title: temp_title,
+                                    url: link.url,
+                                    context: link.context,
+                                    context_url: link.context_url,
+                                    author: link.username
+                                }
+                                
+                                new Recommendation(newRecommendation)
+                                .save()
+                                .then(rec => {
+                                    recommendations.push(rec);    
+                                    if(recommendations.length == recs.length){
+                                        console.log("Parsed " + recs.length + " items successfully as recommendations");
+                                        req.flash('success_msg', 'Thread Refreshed Successfully');
+                                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
+                                    }
+                                });
+    
+                            });
+                        });
+                    });
+                });
+                
+            }
+        });         
     })    
 });
 
@@ -102,9 +171,9 @@ router.post('/', ensureAuthenticated, (req, res) => {
             console.log(post_link);
 
             request.get({
-                url: post_link, 
-                headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
-            }, function (error, response, body) {
+                    url: post_link, 
+                    headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+                }, function (error, response, body) {
                 var thread_items = JSON.parse(body);
                 if(error){
                     errors.push("Failed to fetch thread " + error);

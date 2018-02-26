@@ -22,6 +22,31 @@ const fetch_title = function(url, onComplete = null) {
     });
 }
 
+const remove_fetched = function(items, onComplete = null) {
+    var new_items = [];
+    var handled_posts = [];
+    items.forEach(item => {
+        let errors = [];
+        
+        Post.count({'post_id': item.id}, function(error, count){
+            if(error){
+                errors.push("Failed to fetch thread " + error);
+                res.render('/', {
+                    errors: error
+                })
+            }
+            if(count == 0){
+                new_items.push(item);
+            }
+            handled_posts.push(item);
+            if(handled_posts.length >= items.length){
+                console.log("Fetched " + new_items.length + " new items to be refreshed");
+                if (onComplete) onComplete(new_items);
+            }
+        });
+    });
+}
+
 const fetch_links = function(items, thread_id, onComplete = null) {
     var recommendations = [];
     items.forEach((item, itemIndex) => {
@@ -53,5 +78,5 @@ const fetch_links = function(items, thread_id, onComplete = null) {
 }
 
 module.exports = {
-    fetch_links, fetch_title
+    fetch_links, fetch_title, remove_fetched
 };

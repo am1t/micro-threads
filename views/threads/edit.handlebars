@@ -5,10 +5,12 @@
             {{#if discover }}
             <div class="discover_banner">
                 <a href="#">{{title}}</a>
+                <p class="refresh_link"><a href="/micro/threads/refresh/{{_id}}" class="refresh_link">Refresh</a></p>
             </div>
             {{else}}
             <div class="thread_banner">
                 <a href="#">{{title}}</a>
+                <p class="refresh_link"><a href="/micro/threads/refresh/{{_id}}">Refresh</a></p>
             </div>
             {{/if}}
         </div>

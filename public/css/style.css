@@ -87,3 +87,8 @@ a:hover.edit_rec { color: #fff}
     line-height: 1;
     margin: 15px 0 0;
 }
+
+.refresh_link a {
+    color: #dff0d8;
+    text-decoration: underline;
+}
