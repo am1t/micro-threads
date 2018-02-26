@@ -148,13 +148,19 @@ router.post('/', ensureAuthenticated, (req, res) => {
         });
     } else {
         var isDiscover = false;
+        var ent_post_id = '';
         if(req.body.discover === "on"){
             isDiscover = true;
+            if(!req.body.post_id){
+                ent_post_id = 'all';
+            } else{
+                ent_post_id = req.body.post_id;
+            }
         }
         const newThread = {
             title: req.body.title,
             details: req.body.details,
-            postId: req.body.post_id,
+            postId: ent_post_id,
             discover: isDiscover
         }
         new Thread(newThread)
@@ -163,7 +169,11 @@ router.post('/', ensureAuthenticated, (req, res) => {
             let errors = [];
             let post_link = '';
             if(isDiscover == true){
-                post_link = 'http://micro.blog/posts/discover/' + req.body.post_id;
+                if(!req.body.post_id){
+                    post_link = 'http://micro.blog/posts/discover';
+                } else{ 
+                    post_link = 'http://micro.blog/posts/discover/' + req.body.post_id;
+                }
             } else{
                 post_link = 'http://micro.blog/posts/conversation?id=' + req.body.post_id;
             }
