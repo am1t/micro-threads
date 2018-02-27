@@ -22,7 +22,8 @@ router.get('/logout', (req, res) => {
 
 // User Register route
 router.get('/register', (req, res) => {
-    res.render('users/register');
+    res.send('Not Authorised');
+    //res.render('users/register');
 });
 
 // Form for user Register route

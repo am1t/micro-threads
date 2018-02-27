@@ -40,7 +40,7 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
         rec.save()
         .then(idea => {
             req.flash('success_msg', 'Recommendations Metadata Updated');
-            res.redirect('/micro/threads');
+            res.redirect('/micro/threads/'+ rec.thread_id + '/recommendations');
         });
     });
 });

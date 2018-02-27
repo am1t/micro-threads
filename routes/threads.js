@@ -35,7 +35,8 @@ router.get('/:id/recommendations', (req, res) => {
     Thread.findById(req.params.id)
     .then(thread => {
         Recommendation.find({thread_id: req.params.id})
-        .then(recs => {
+        .sort({_id : 'desc'})
+        .exec((err, recs) => {
             res.render('threads/recommendations', {
                 recs: recs
             });
@@ -62,7 +63,11 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
         let errors = [];
         let post_link = '';
         if(thread.discover == true){
-            post_link = 'http://micro.blog/posts/discover/' + thread.postId;
+            if(thread.postId === 'all'){
+                post_link = 'http://micro.blog/posts/discover';
+            } else{
+                post_link = 'http://micro.blog/posts/discover/' + thread.postId;
+            }
         } else{
             post_link = 'http://micro.blog/posts/conversation?id=' + thread.postId;
         }
