@@ -21,12 +21,16 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
 
 //Delete Recommendations Form
 router.get('/delete/:id', ensureAuthenticated, (req, res) => {
-    Recommendation.remove({
-        _id: req.params.id
-    })
-    .then(() => {
-        req.flash('success_msg', 'Recommendation Removed');
-        res.redirect('/micro/threads');
+    Recommendation.findById(req.params.id)
+    .then(rec => {
+        var this_thread_id = rec.thread_id;
+        Recommendation.remove({
+            _id: req.params.id
+        })
+        .then(() => {
+            req.flash('success_msg', 'Recommendation Removed');
+            res.redirect('/micro/threads/'+ this_thread_id + '/recommendations');
+        });
     });    
 });
 

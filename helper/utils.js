@@ -61,8 +61,8 @@ const fetch_links = function(items, thread_id, onComplete = null) {
                 var itemsProcessed = 0;
                 links.forEach((link, linkIndex) => {
                     let link_title = '';
-                    if(link.href && link.href.indexOf("micro.blog") == -1){
-                        if(item.url && item.url.indexOf("micro.blog") != -1){
+                    if(link.href && link.href.indexOf("https://micro.blog") == -1){
+                        if(item.url && item.url.indexOf("https://micro.blog") == -1){
                             item.url = 'https://micro.blog/' + item.author._microblog.username
                                 + '/' + item.id;
                         }
