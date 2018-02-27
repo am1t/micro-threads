@@ -153,13 +153,11 @@ router.post('/', ensureAuthenticated, (req, res) => {
         });
     } else {
         var isDiscover = false;
-        var ent_post_id = '';
+        var ent_post_id = req.body.post_id;
         if(req.body.discover === "on"){
             isDiscover = true;
             if(!req.body.post_id){
                 ent_post_id = 'all';
-            } else{
-                ent_post_id = req.body.post_id;
             }
         }
         const newThread = {
