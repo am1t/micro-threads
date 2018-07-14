@@ -8,6 +8,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const mongoose = require('mongoose');
+const helmet = require('helmet')
 
 const app = express();
 
@@ -35,6 +36,8 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 
 app.use(methodOverride('_method'))
+
+app.use(helmet());
 
 // Express Session middleware
 app.use(session({
