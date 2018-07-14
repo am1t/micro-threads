@@ -82,7 +82,7 @@ app.get('/', (req, res) => {
 app.use('/micro/threads', threads);
 app.use('/users', users);
 app.use('/micro/recommendations', recommendations);
-app.use('/micro/discover', discover);
+app.use('/discover', discover);
 
 const port = process.env.PORT || 5000;
 

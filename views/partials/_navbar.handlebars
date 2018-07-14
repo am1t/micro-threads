@@ -15,18 +15,19 @@
 
             <ul class="navbar-nav ml-auto">
                 {{#if user}}
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="navbar-dropdown-meulink">
-                            Threads</a>
-                        <div class="dropdown-menu">
-                            <a href="/micro/threads/add" class="dropdown-item">Add New Thread</a>
-                            <a href="/micro/threads/edit" class="dropdown-item">Refresh Thread</a>
-                        </div>
-                    </li>
+                    {{#if user.email}}
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="navbar-dropdown-meulink">
+                                Threads</a>
+                            <div class="dropdown-menu">
+                                <a href="/micro/threads/add" class="dropdown-item">Add New Thread</a>
+                                <a href="/micro/threads/edit" class="dropdown-item">Refresh Thread</a>
+                            </div>
+                        </li>
+                    {{/if}}
                     <li class="nav-item">
                         <a href="/users/logout" class="nav-link">Logout</a>
-                    </li>                    
-                {{else}}
+                    </li>
                 {{/if}}
             </ul>            
         </div>             

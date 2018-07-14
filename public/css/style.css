@@ -32,7 +32,7 @@ body{
 .thread_banner a:hover { color: deepskyblue; }
 
 
-.discover_banner{
+.discover_banner, .user_banner {
     border: 1px solid #24292e;
     font-size: 18px;
     padding: 20px 20px;
@@ -42,9 +42,13 @@ body{
     background-color: crimson;    
 }
 
+.user_banner { background-color: green; text-transform: none; }
+
 .discover_banner a { color: #fff; }
 .discover_banner a:hover { color: deepskyblue; }
 
+.user_banner a { color: #fff; }
+.user_banner a:hover { color: deepskyblue; }
 
 .recos{
     border: 1px solid #24292e;
@@ -68,6 +72,15 @@ body{
 } 
 a.edit_rec { color: deepskyblue}
 a:hover.edit_rec { color: #fff}
+
+.follow_btn {
+    float: right;
+    font-size: 20px
+    margin-right: 40px;
+}
+
+.follow_btn a { padding: 5px 20px;color:white}
+.follow_btn a:hover {color: red}
 
 .recos_context{
     color: #000;

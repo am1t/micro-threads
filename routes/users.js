@@ -15,9 +15,10 @@ router.get('/login', (req, res) => {
 
 // User Logout route
 router.get('/logout', (req, res) => {
+    User.find({ userid: req.user.userid }).remove().exec();
     req.logout();
     req.flash('success_msg', 'You are logged out');
-    res.redirect('/users/login');
+    res.redirect('/discover');
 });
 
 // User Register route

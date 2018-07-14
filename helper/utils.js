@@ -81,6 +81,31 @@ const fetch_links = function(items, thread_id, onComplete = null) {
     if (onComplete) onComplete(recommendations);
 }
 
+const follow_recommendations_stream = function(stream, onComplete = null) {
+    var recs = [];
+    stream.forEach((item, itemIndex) => {
+        var content = item.content_html;
+        const re = /@([^-\s]*?)</g;
+        while(current = re.exec(content)){
+            var user = current.pop();
+            recs.push(user);  
+        }
+    });
+
+    if (onComplete) onComplete(recs);
+}
+
+const follow_recommendations_discover = function(stream, onComplete = null) {
+    var recs = [];
+    stream.forEach((item, itemIndex) => {
+        var user = item.author._microblog.username;
+            recs.push(user);
+    });
+
+    if (onComplete) onComplete(recs);
+}
+
 module.exports = {
-    fetch_links, fetch_title, remove_fetched
+    fetch_links, fetch_title, remove_fetched, 
+    follow_recommendations_stream, follow_recommendations_discover
 };

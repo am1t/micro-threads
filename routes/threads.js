@@ -30,9 +30,34 @@ router.get('/', (req, res) => {
     })
 });
 
+// Fetch Route
+router.get('/discover', (req, res) => {
+    Thread.find({discover:true})
+    .sort({date: 'desc'})
+    .then(threads => {
+        res.render('threads/index', {
+            threads: threads
+        });
+    })
+});
+
 ///thread/:{{id}}
 router.get('/:id/recommendations', (req, res) => {
     Thread.findById(req.params.id)
+    .then(thread => {
+        Recommendation.find({thread_id: req.params.id})
+        .sort({_id : 'desc'})
+        .exec((err, recs) => {
+            res.render('threads/recommendations', {
+                recs: recs
+            });
+        });
+    })
+});
+
+///thread/:{{id}}
+router.get('/:title/recommendations', (req, res) => {
+    Thread.find({title : req.params.title})
     .then(thread => {
         Recommendation.find({thread_id: req.params.id})
         .sort({_id : 'desc'})

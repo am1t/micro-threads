@@ -1,0 +1,32 @@
+{{#if user_recs}}
+    <div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Happy Days!</h4>
+    <p>Successfully pulled up the below list of users who can further elevate your experience at Micro.blog.
+        Fetched by parsing <span style="text-decoration:underline;">who the people you follow interact with</span>. 
+        At the same time, discover feed is also parsed <span style="text-decoration:underline;">to find profiles you are yet to follow</span>.
+    </p>
+    <hr>
+    <p class="mb-0">Go ahead, head over to their profile at micro.blog and start following them</p>
+    </div>
+{{else}}
+    <div class="alert alert-warning" role="alert">
+    <h4 class="alert-heading">Dang it!</h4>
+    <p>Aww yeah, you are already following all the good people at Micro.blog.</p>
+    </div>
+{{/if}}
+<ul class="list-group list-group-flush">
+    {{#each user_recs}}
+        <li class="list-group-item">
+            <div>
+                <span style="font-size: 30px;padding-left:100px;padding-right:10px;border-bottom: 1px solid red;" >
+                    <a href="#" >{{.}}</a>
+                </span>
+                <button type="button" class="follow_btn btn btn-primary">
+                    <a href="https://micro.blog/{{.}}" target="_blank">Follow</a>
+                </button>
+            </div>
+        </li>
+    {{else}}
+        <li class="list-group-item">No new users identified</li>
+    {{/each}}
+</ul>

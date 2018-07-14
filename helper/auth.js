@@ -3,7 +3,6 @@ module.exports = {
         if(req.isAuthenticated()){
             return next();
         } 
-        req.flash('error_msg', 'User not authenticated');
-        res.redirect('/users/login');
+        res.redirect('/discover');
     }
 }
