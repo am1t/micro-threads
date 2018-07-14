@@ -2,14 +2,16 @@
     <div class="col-md-6 mx-auto">
         <div class="card card-body">
             <h3 class="text-center">Login to Micro.Blog</h3>
-            <h6 class="text-center" style="padding: 5px 0; margin-bottom: 20px; border-bottom: 2px solid red">Provdie an Application Token to access your discover section</h6>
+            <h6 class="text-center" style="padding: 5px 0; margin-bottom: 20px; border-bottom: 2px solid red">Provide an Application Token to access your discover section</h6>
             <form action="/discover/signin" method="post">
                 <div class="form-group">
                     <label for="userid">Micro.blog User Name</label>
                     <input name="userid" type="input" class="form-control" required>
                 </div>            
                 <div class="form-group">
-                    <label for="token">Micro.blog App Token</label>
+                    <label for="token">Micro.blog App Token 
+                        <a href="https://micro.blog/account/apps" style="color:grey; font-size:14px; text-decoration:underline;" target="_blank">(Generate)</a>
+                    </label>
                     <input name="token" type="input" class="form-control" required>
                 </div>
                 <button class="btn btn-primary" type="submit">Submit</button>
