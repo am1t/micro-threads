@@ -1,6 +1,9 @@
 const localStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+var CryptoJS = require("crypto-js");
+
+//App config
+const appconfig = require('../config/appconfig');
 
 const User = mongoose.model('users');
 
@@ -13,7 +16,7 @@ module.exports = function(passport){
                 const newUser = new User({
                     name: userid,
                     userid: userid,
-                    token: token
+                    token: CryptoJS.AES.encrypt(token, appconfig.seckey)
                 });
                 newUser.save()
                 .then(user => {
@@ -28,27 +31,6 @@ module.exports = function(passport){
             }
         })
     }));
-
-
-/*module.exports = function(passport){
-    passport.use(new localStrategy({usernameField: 'email'}, (email, password, done) => {
-        User.findOne({email:email})
-        .then(user => {
-            if(!user){
-                return done(null, false, {message: 'No User found'});
-            }
-
-            // Match password
-            bcrypt.compare(password, user.password, (err, isMatch)=> {
-                if(err) throw err;
-                if(isMatch){
-                    return done(null, user)
-                } else {
-                    return done(null, false, {message: 'Password incorrect'});
-                }
-            });
-        })
-    }));*/
 
     passport.serializeUser(function(user, done) {
      done(null, user.id);

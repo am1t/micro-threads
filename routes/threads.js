@@ -82,75 +82,80 @@ router.get('/edit', ensureAuthenticated, (req, res) => {
 
 //Edit Threads Form for refresh
 router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
-    Thread.findById(req.params.id)
-    .sort({date: 'desc'})
-    .then(thread => {
-        let errors = [];
-        let post_link = '';
-        if(thread.discover == true){
-            if(thread.postId === 'all'){
-                post_link = 'http://micro.blog/posts/discover';
+    try {
+        Thread.findById(req.params.id)
+        .sort({date: 'desc'})
+        .then(thread => {
+            let errors = [];
+            let post_link = '';
+            if(thread.discover == true){
+                if(thread.postId === 'all'){
+                    post_link = 'http://micro.blog/posts/discover';
+                } else{
+                    post_link = 'http://micro.blog/posts/discover/' + thread.postId;
+                }
             } else{
-                post_link = 'http://micro.blog/posts/discover/' + thread.postId;
+                post_link = 'http://micro.blog/posts/conversation?id=' + thread.postId;
             }
-        } else{
-            post_link = 'http://micro.blog/posts/conversation?id=' + thread.postId;
-        }
-
-        console.log(post_link);
-        request.get({
-            url: post_link, 
-            headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
-            }, function (error, response, body) {
-            var thread_items = JSON.parse(body);
-            if(error){
-                errors.push("Failed to fetch thread " + error);
-                res.render('/', {
-                    errors: errors
-                })
-            } else {
-                remove_fetched(thread_items.items, function(items){
-                    if(items.length == 0){
-                        console.log("No items to be parsed for recommendations");
-                        req.flash('info_msg', 'No new recommendations posted yet');
-                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
-                    }
-                    fetch_links(items, thread.id, function(recs){
-                        var recommendations = [];
-                        recs.forEach((link, linkIndex) => {
-                            fetch_title(link.url, function(output){
-                                var temp_title = '';
-                                if(output.title) temp_title = output.title; 
-                                else temp_title = link.title;
     
-                                const newRecommendation = {
-                                    thread_id: thread.id,
-                                    title: temp_title,
-                                    url: link.url,
-                                    context: link.context,
-                                    context_url: link.context_url,
-                                    author: link.username
-                                }
-                                
-                                new Recommendation(newRecommendation)
-                                .save()
-                                .then(rec => {
-                                    recommendations.push(rec);    
-                                    if(recommendations.length == recs.length){
-                                        console.log("Parsed " + recs.length + " items successfully as recommendations");
-                                        req.flash('success_msg', 'Thread Refreshed Successfully');
-                                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
+            console.log(post_link);
+            request.get({
+                url: post_link, 
+                headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+                }, function (error, response, body) {
+                var thread_items = JSON.parse(body);
+                if(error){
+                    errors.push("Failed to fetch thread " + error);
+                    res.render('/', {
+                        errors: errors
+                    })
+                } else {
+                    remove_fetched(thread_items.items, function(items){
+                        if(items.length == 0){
+                            console.log("No items to be parsed for recommendations");
+                            req.flash('info_msg', 'No new recommendations posted yet');
+                            res.redirect('/micro/threads/' + thread.id + '/recommendations');
+                        }
+                        fetch_links(items, thread.id, function(recs){
+                            var recommendations = [];
+                            recs.forEach((link, linkIndex) => {
+                                fetch_title(link.url, function(output){
+                                    var temp_title = '';
+                                    if(output.title) temp_title = output.title; 
+                                    else temp_title = link.title;
+        
+                                    const newRecommendation = {
+                                        thread_id: thread.id,
+                                        title: temp_title,
+                                        url: link.url,
+                                        context: link.context,
+                                        context_url: link.context_url,
+                                        author: link.username
                                     }
+                                    
+                                    new Recommendation(newRecommendation)
+                                    .save()
+                                    .then(rec => {
+                                        recommendations.push(rec);    
+                                        if(recommendations.length == recs.length){
+                                            console.log("Parsed " + recs.length + " items successfully as recommendations");
+                                            req.flash('success_msg', 'Thread Refreshed Successfully');
+                                            res.redirect('/micro/threads/' + thread.id + '/recommendations');
+                                        }
+                                    });
+        
                                 });
-    
                             });
                         });
-                    });
-                });
-                
-            }
-        });         
-    })    
+                    }); 
+                }
+            });         
+        })   
+    } catch (error) {
+        console.log(error);
+        req.flash('info_msg', 'Thread Refreshed Successfully, with some failures');
+        res.redirect('/micro/threads/' + thread.id + '/recommendations');
+    }    
 });
 
 //Add Threads Form
@@ -160,98 +165,103 @@ router.get('/add', ensureAuthenticated, (req, res) => {
 
 //Process Forms
 router.post('/', ensureAuthenticated, (req, res) => {
-    let errors = [];
-    if(!req.body.title){
-        errors.push({
-            text: "Please add a title"
-        });
-    }
-    if(!req.body.details){
-        errors.push({text: "Please add some details"})
-    }
-    if(errors.length > 0){
-        res.render('threads/add', {
-            errors: errors,
-            title: req.body.title,
-            details: req.body.details,
-            post_id: req.body.post_id
-        });
-    } else {
-        var isDiscover = false;
-        var ent_post_id = req.body.post_id;
-        if(req.body.discover === "on"){
-            isDiscover = true;
-            if(!req.body.post_id){
-                ent_post_id = 'all';
-            }
+    try {
+        let errors = [];
+        if(!req.body.title){
+            errors.push({
+                text: "Please add a title"
+            });
         }
-        const newThread = {
-            title: req.body.title,
-            details: req.body.details,
-            postId: ent_post_id,
-            discover: isDiscover
+        if(!req.body.details){
+            errors.push({text: "Please add some details"})
         }
-        new Thread(newThread)
-        .save()
-        .then(thread => {
-            let errors = [];
-            let post_link = '';
-            if(isDiscover == true){
+        if(errors.length > 0){
+            res.render('threads/add', {
+                errors: errors,
+                title: req.body.title,
+                details: req.body.details,
+                post_id: req.body.post_id
+            });
+        } else {
+            var isDiscover = false;
+            var ent_post_id = req.body.post_id;
+            if(req.body.discover === "on"){
+                isDiscover = true;
                 if(!req.body.post_id){
-                    post_link = 'http://micro.blog/posts/discover';
-                } else{ 
-                    post_link = 'http://micro.blog/posts/discover/' + req.body.post_id;
+                    ent_post_id = 'all';
                 }
-            } else{
-                post_link = 'http://micro.blog/posts/conversation?id=' + req.body.post_id;
             }
-
-            console.log(post_link);
-
-            request.get({
-                    url: post_link, 
-                    headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
-                }, function (error, response, body) {
-                var thread_items = JSON.parse(body);
-                if(error){
-                    errors.push("Failed to fetch thread " + error);
-                    res.render('/', {
-                        errors: errors
-                    })
-                } else { 
-                    fetch_links(thread_items.items, thread.id, function(recs){
-                        var recommendations = [];
-                        recs.forEach((link, linkIndex) => {
-                            fetch_title(link.url, function(output){
-                                var temp_title = '';
-                                if(output.title) temp_title = output.title; 
-                                else temp_title = link.title;
-
-                                const newRecommendation = {
-                                    thread_id: thread.id,
-                                    title: temp_title,
-                                    url: link.url,
-                                    context: link.context,
-                                    context_url: link.context_url,
-                                    author: link.username
-                                }
-                                
-                                new Recommendation(newRecommendation)
-                                .save()
-                                .then(rec => {
-                                    recommendations.push(rec);    
-                                    if(recommendations.length == recs.length){
-                                        req.flash('success_msg', 'Thread Added Successfully');
-                                        res.redirect('/micro/threads');
+            const newThread = {
+                title: req.body.title,
+                details: req.body.details,
+                postId: ent_post_id,
+                discover: isDiscover
+            }
+            new Thread(newThread)
+            .save()
+            .then(thread => {
+                let errors = [];
+                let post_link = '';
+                if(isDiscover == true){
+                    if(!req.body.post_id){
+                        post_link = 'http://micro.blog/posts/discover';
+                    } else{ 
+                        post_link = 'http://micro.blog/posts/discover/' + req.body.post_id;
+                    }
+                } else{
+                    post_link = 'http://micro.blog/posts/conversation?id=' + req.body.post_id;
+                }
+    
+                console.log(post_link);
+    
+                request.get({
+                        url: post_link, 
+                        headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+                    }, function (error, response, body) {
+                    var thread_items = JSON.parse(body);
+                    if(error){
+                        errors.push("Failed to fetch thread " + error);
+                        res.render('/', {
+                            errors: errors
+                        })
+                    } else { 
+                        fetch_links(thread_items.items, thread.id, function(recs){
+                            var recommendations = [];
+                            recs.forEach((link, linkIndex) => {
+                                fetch_title(link.url, function(output){
+                                    var temp_title = '';
+                                    if(output.title) temp_title = output.title; 
+                                    else temp_title = link.title;
+    
+                                    const newRecommendation = {
+                                        thread_id: thread.id,
+                                        title: temp_title,
+                                        url: link.url,
+                                        context: link.context,
+                                        context_url: link.context_url,
+                                        author: link.username
                                     }
+                                    
+                                    new Recommendation(newRecommendation)
+                                    .save()
+                                    .then(rec => {
+                                        recommendations.push(rec);    
+                                        if(recommendations.length == recs.length){
+                                            req.flash('success_msg', 'Thread Added Successfully');
+                                            res.redirect('/micro/threads');
+                                        }
+                                    });
                                 });
-
                             });
                         });
-                    });
-                }
-            });            
-        })
+                    }
+                });            
+            })
+        }        
+    } catch (error) {
+        console.log(error);
+        req.flash('info_msg', 'Thread Added Successfully, with some failures');
+        res.redirect('/micro/threads');
     }
 });
 
