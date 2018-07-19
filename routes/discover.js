@@ -6,7 +6,8 @@ const {ensureAuthenticated} = require('../helper/auth');
 const router = express.Router();
 var CryptoJS = require("crypto-js");
 
-const { follow_recommendations_stream, follow_recommendations_discover } = require('../helper/utils');
+const {  fetch_stream, fetch_discover, fetch_following, fetch_user_information,
+    fetch_users_from_stream, fetch_user_from_discover } = require('../helper/utils');
 const appconfig = require('../config/appconfig');
 
 // Load Thread Model
@@ -47,171 +48,6 @@ router.post('/signin', (req, res, next) => {
         });
 });
 
-// User Login form post
-router.get('/dashboard', ensureAuthenticated, (req, res, next) => {
-    let errors = [];
-    var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
-
-    var mb_stream_api = "http://micro.blog/posts/all";
-    var mb_discover_api = "http://micro.blog/posts/discover";
-    var mb_following_api = "https://micro.blog/users/following/" + req.user.userid;
-
-    request.get({
-        url: mb_stream_api, 
-        headers: {'Authorization': 'Token ' + app_token}
-        }, function (error, response, body) {
-        var thread_items = JSON.parse(body);
-        
-        if(error){
-            errors.push("Failed to fetch stream " + error);
-            res.render('/discover', {
-                errors: errors
-            })
-        } else {
-            var stream = JSON.parse(body).items;
-            var following = [];
-            var user_recs_all = [];
-            request.get({
-                url: mb_following_api, 
-                headers: {'Authorization': 'Token ' + app_token}
-                }, function (error, response, flw_body) {
-                    var following_dtls = JSON.parse(flw_body);
-                    following_dtls.forEach((item) => {
-                        following.push(item.username);
-                    });
-                    follow_recommendations_stream(stream, function(recs){
-                        //user_recs_all.concat(recs);
-                        request.get({
-                            url: mb_discover_api, 
-                            headers: {'Authorization': 'Token ' + app_token}
-                            }, function (error, response, disc_body) {
-                            stream = JSON.parse(disc_body).items;
-                            follow_recommendations_discover(stream, function(discres){
-                                var user_recs = [];
-                                user_recs_all = recs.concat(discres);
-                                user_recs = user_recs_all.filter((v, i, a) => { 
-                                    return a.map(function(item){ return item.toLowerCase()})
-                                    .indexOf(v.toLowerCase()) === i 
-                                    && following.map(function(item){ return item.toLowerCase()})
-                                    .indexOf(v.toLowerCase()) == -1;
-                                }); 
-                                res.render('discover/dashboard', {user_recs});
-                            });
-                        });
-                    });
-                });
-        }
-    });
-});
-
-const fetch_stream = function(apptoken){
-    const error_string = "Error while processing the request.";
-    var mb_api = "http://micro.blog/posts/all";
-    return new Promise((resolve, reject) => {
-        request.get({
-            url: mb_api, 
-            headers: {'Authorization': 'Token ' + apptoken}
-            }, function (error, response, body) {
-            
-            if(body.indexOf(error_string) != -1){
-                reject("Failed to load user stream");
-            } else {
-                resolve(JSON.parse(body).items);
-            }
-        });
-    });
-}
-
-const fetch_discover = function(apptoken){
-    const error_string = "Error while processing the request.";
-    var mb_api = "http://micro.blog/posts/discover";
-    return new Promise((resolve, reject) => {
-        request.get({
-            url: mb_api, 
-            headers: {'Authorization': 'Token ' + apptoken}
-            }, function (error, response, body) {
-            
-            if(body.indexOf(error_string) != -1){
-                reject("Failed to load discover section");
-            } else {
-                resolve(JSON.parse(body).items);
-            }
-        });
-    });
-}
-
-const fetch_following = function(userid, apptoken){
-    const error_string = "Error while processing the request.";
-    var mb_api = "https://micro.blog/users/following/" + userid;
-    return new Promise((resolve, reject) => {
-        request.get({
-            url: mb_api, 
-            headers: {'Authorization': 'Token ' + apptoken}
-            }, function (error, response, body) {
-            
-            if(body.indexOf(error_string) != -1){
-                reject("Failed to load following list");
-            } else {
-                var following = [];
-                var following_dtls = JSON.parse(body);
-                following_dtls.forEach((item) => {
-                    following.push(item.username.toLowerCase());
-                });
-                resolve(following);
-            }
-        });
-    });
-}
-
-const fetch_users_from_stream = function(stream, following) {
-    var recs = new Map();
-    return new Promise((resolve, reject) => {
-        try {
-            stream.forEach((item, itemIndex) => {
-                var content = item.content_html;
-                const re = /@([^-\s]*?)</g;
-                while(current = re.exec(content)){
-                    var user = current.pop().toLowerCase();
-                    // 1. Check following status here itself to reduce complexity
-                    // 2. Check for uniqueness in msg
-                    if(following.indexOf(user) == -1){
-                        if(!recs.has(user)) {
-                            recs.set(user, ["@"+ item.author._microblog.username.toLowerCase()]); 
-                        } else {
-                            var current_users = [];
-                            current_users = recs.get(user);
-                            if(current_users.indexOf("@"+item.author._microblog.username.toLowerCase()) == -1){
-                                current_users.push("@"+item.author._microblog.username.toLowerCase());
-                                recs.set(user, current_users);
-                            }
-                        } 
-                    }
-                }
-            });
-            resolve(recs);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-const fetch_user_from_discover = function(stream, following) {
-    var recs = new Map();
-    return new Promise((resolve, reject) => {
-        try {
-            stream.forEach((item, itemIndex) => {
-                var user = item.author._microblog.username;
-                if(following.indexOf(user) == -1){
-                    recs.set(user, "Featured in discover section");
-                }
-            });
-            resolve(recs);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
 // Discover User Route
 router.get('/user', ensureAuthenticated, async (req, res, next) => {
     let errors = [];
@@ -241,6 +77,55 @@ router.get('/user', ensureAuthenticated, async (req, res, next) => {
     } catch (error) {
         console.log(error);
         errors.push({text:"Failed to fetch user discover"});
+        res.render('discover/landing', {
+            errors: errors
+        })
+    }
+});
+
+const fetch_posts_by_type = function(items){
+    var posts = {};
+    return new Promise((resolve, reject) => {
+        try {
+            let interactions = [];
+            let original = [];
+            items.forEach((item, itemIndex) => {
+                var content = item.content_html;
+                var at_identifier = "<p><a href=\"https://micro.blog/";
+
+                if(content.startsWith(at_identifier)){
+                    interactions.push(content);
+                } else { original.push(content); }
+            });
+            posts = {interactions : interactions, originals : original}
+            resolve(posts);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+// Get User Information Route
+router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
+    let errors = [];
+    try {
+        var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+        const user_info = await fetch_user_information(app_token, req.params.userid);
+
+        const author = user_info.author;
+        const posts = await fetch_posts_by_type(user_info.items);
+
+        author.userid = req.params.userid;
+
+        res.render('discover/user_info', {
+            author: author,
+            originals: posts.originals,
+            interactions: posts.interactions
+        });
+
+    } catch (error) {
+        console.log(error);
+        errors.push({text:"Failed to fetch user information"});
         res.render('discover/landing', {
             errors: errors
         })

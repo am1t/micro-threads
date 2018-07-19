@@ -81,31 +81,133 @@ const fetch_links = function(items, thread_id, onComplete = null) {
     if (onComplete) onComplete(recommendations);
 }
 
-const follow_recommendations_stream = function(stream, onComplete = null) {
-    var recs = [];
-    stream.forEach((item, itemIndex) => {
-        var content = item.content_html;
-        const re = /@([^-\s]*?)</g;
-        while(current = re.exec(content)){
-            var user = current.pop();
-            recs.push(user);  
-        }
+const fetch_stream = function(apptoken){
+    const error_string = "Error while processing the request.";
+    var mb_api = "http://micro.blog/posts/all";
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: mb_api, 
+            headers: {'Authorization': 'Token ' + apptoken}
+            }, function (error, response, body) {
+            
+            if(body.indexOf(error_string) != -1){
+                reject("Failed to load user stream");
+            } else {
+                resolve(JSON.parse(body).items);
+            }
+        });
     });
-
-    if (onComplete) onComplete(recs);
 }
 
-const follow_recommendations_discover = function(stream, onComplete = null) {
-    var recs = [];
-    stream.forEach((item, itemIndex) => {
-        var user = item.author._microblog.username;
-            recs.push(user);
+const fetch_discover = function(apptoken){
+    const error_string = "Error while processing the request.";
+    var mb_api = "http://micro.blog/posts/discover";
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: mb_api, 
+            headers: {'Authorization': 'Token ' + apptoken}
+            }, function (error, response, body) {
+            
+            if(body.indexOf(error_string) != -1){
+                reject("Failed to load discover section");
+            } else {
+                resolve(JSON.parse(body).items);
+            }
+        });
     });
+}
 
-    if (onComplete) onComplete(recs);
+const fetch_following = function(userid, apptoken){
+    const error_string = "Error while processing the request.";
+    var mb_api = "https://micro.blog/users/following/" + userid;
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: mb_api, 
+            headers: {'Authorization': 'Token ' + apptoken}
+            }, function (error, response, body) {
+            
+            if(body.indexOf(error_string) != -1){
+                reject("Failed to load following list");
+            } else {
+                var following = [];
+                var following_dtls = JSON.parse(body);
+                following_dtls.forEach((item) => {
+                    following.push(item.username.toLowerCase());
+                });
+                resolve(following);
+            }
+        });
+    });
+}
+
+const fetch_users_from_stream = function(stream, following) {
+    var recs = new Map();
+    return new Promise((resolve, reject) => {
+        try {
+            stream.forEach((item, itemIndex) => {
+                var content = item.content_html;
+                const re = /@([^-\s]*?)</g;
+                while(current = re.exec(content)){
+                    var user = current.pop().toLowerCase();
+                    // 1. Check following status here itself to reduce complexity
+                    // 2. Check for uniqueness in msg
+                    if(following.indexOf(user) == -1){
+                        if(!recs.has(user)) {
+                            recs.set(user, ["@"+ item.author._microblog.username.toLowerCase()]); 
+                        } else {
+                            var current_users = [];
+                            current_users = recs.get(user);
+                            if(current_users.indexOf("@"+item.author._microblog.username.toLowerCase()) == -1){
+                                current_users.push("@"+item.author._microblog.username.toLowerCase());
+                                recs.set(user, current_users);
+                            }
+                        } 
+                    }
+                }
+            });
+            resolve(recs);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+const fetch_user_from_discover = function(stream, following) {
+    var recs = new Map();
+    return new Promise((resolve, reject) => {
+        try {
+            stream.forEach((item, itemIndex) => {
+                var user = item.author._microblog.username.toLowerCase();
+                if(following.indexOf(user) == -1){
+                    recs.set(user, "Featured in discover section");
+                }
+            });
+            resolve(recs);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+const fetch_user_information = function(apptoken, userid){
+    const error_string = "Error while processing the request.";
+    var mb_api = "http://micro.blog/posts/" + userid;
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: mb_api, 
+            headers: {'Authorization': 'Token ' + apptoken}
+            }, function (error, response, body) {
+            
+            if(body.indexOf(error_string) != -1){
+                reject("Failed to load user information");
+            } else {
+                resolve(JSON.parse(body));
+            }
+        });
+    });
 }
 
 module.exports = {
-    fetch_links, fetch_title, remove_fetched, 
-    follow_recommendations_stream, follow_recommendations_discover
+    fetch_links, fetch_title, remove_fetched, fetch_user_information,
+    fetch_stream, fetch_discover, fetch_following, fetch_users_from_stream, fetch_user_from_discover
 };

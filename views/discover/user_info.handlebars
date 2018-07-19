@@ -1,0 +1,17 @@
+<h2> Author Details: </h2>
+<img src='{{author.avatar}}' width="50px">
+<a href='{{author.url}}' style="font-size:25px">{{author.name}}</a>
+
+<a href='https://micro.blog/{{author.userid}}'>Follow</a>
+<p/> <p/>
+
+<h2> Recent Orginal Posts </h2>
+{{#each originals}}
+    <div>{{.}}</div>
+{{/each}}
+
+<h2> Recent Interactions </h2>
+{{#each interactions}}
+    <div>{{.}}</div>
+{{/each}}
+

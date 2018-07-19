@@ -27,7 +27,12 @@ module.exports = function(passport){
                     return done(null, false, {message: 'Failed to use Token'});
                 });
             } else {
-                return done(null, user);
+                let encrpt_token = CryptoJS.AES.encrypt(token, appconfig.seckey);
+                if(user.token !== encrpt_token){
+                    user.token = encrpt_token;
+                    user.save()
+                        .then(user => { return done(null, user); });
+                } else { return done(null, user); }
             }
         })
     }));
