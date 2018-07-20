@@ -91,7 +91,7 @@ const purge_posts = function(thread_id){
 
     return new Promise((resolve, reject) => {
         try {
-            Post.deleteMany({thread_id:thread_id, insertDate : {$lt : deletionDate}}, function(err){
+            Post.deleteMany({thread_id:thread_id, date : {$lt : deletionDate}}, function(err){
                 if(err) reject(err);
                 else {
                     resolve("success");
@@ -111,7 +111,7 @@ const purge_recommendations = function(thread_id){
 
     return new Promise((resolve, reject) => {
         try {
-            Recommendation.deleteMany({thread_id:thread_id, insertDate : {$lt : deletionDate}}, function(err){
+            Recommendation.deleteMany({thread_id:thread_id, date : {$lt : deletionDate}}, function(err){
                 if(err) reject(err);
                 else {
                     resolve("success");
