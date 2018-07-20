@@ -92,9 +92,9 @@ const fetch_posts_by_type = function(items){
             let original = [];
             items.forEach((item, itemIndex) => {
                 var content = item.content_html;
-                var at_identifier = "<p><a href=\"https://micro.blog/";
+                var is_conversation = item._microblog.is_conversation;
 
-                if(content.startsWith(at_identifier)){
+                if(is_conversation){
                     if(interactions.length < 10) interactions.push({content:content, url: item.url}) ;
                 } else { if(original.length < 10)  original.push({content:content, url: item.url}); }
             });
