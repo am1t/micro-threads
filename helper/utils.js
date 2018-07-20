@@ -28,7 +28,7 @@ const remove_fetched = function(items, onComplete = null) {
     items.forEach(item => {
         let errors = [];
         
-        Post.count({'post_id': item.id}, function(error, count){
+        Post.countDocuments({'post_id': item.id}, function(error, count){
             if(error){
                 errors.push("Failed to fetch thread " + error);
                 res.render('/', {

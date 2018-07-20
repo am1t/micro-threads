@@ -12,6 +12,10 @@ const { fetch_links, fetch_title, remove_fetched } = require('../helper/utils');
 require('../models/Thread');
 const Thread = mongoose.model('threads');
 
+// Load Post Model
+require('../models/Post');
+const Post = mongoose.model('posts');
+
 // Load Recommendation Model
 require('../models/Recommendation');
 const Recommendation = mongoose.model('recommendations');
@@ -80,8 +84,65 @@ router.get('/edit', ensureAuthenticated, (req, res) => {
     })    
 });
 
+const purge_posts = function(thread_id){
+    var date = new Date();
+    var daysToDeletion = 120;
+    var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
+
+    return new Promise((resolve, reject) => {
+        try {
+            Post.deleteMany({thread_id:thread_id, insertDate : {$lt : deletionDate}}, function(err){
+                if(err) reject(err);
+                else {
+                    resolve("success");
+                }
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+const purge_recommendations = function(thread_id){
+    var date = new Date();
+    var daysToDeletion = 120;
+    var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
+
+    return new Promise((resolve, reject) => {
+        try {
+            Recommendation.deleteMany({thread_id:thread_id, insertDate : {$lt : deletionDate}}, function(err){
+                if(err) reject(err);
+                else {
+                    resolve("success");
+                }
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+const refresh_thread_date = function(thread_id){
+    return new Promise((resolve, reject) => {
+        try {
+            Thread.findById(thread_id)
+            .then(thread => {
+                thread.date = Date.now();
+                thread.save()
+                .then(thread => {
+                    resolve("success");
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 //Edit Threads Form for refresh
-router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
+router.get('/refresh/:id', ensureAuthenticated, async (req, res) => {
     try {
         Thread.findById(req.params.id)
         .sort({date: 'desc'})
@@ -109,14 +170,17 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
                         errors: errors
                     })
                 } else {
-                    remove_fetched(thread_items.items, function(items){
+                    remove_fetched(thread_items.items, async function(items){
                         if(items.length == 0){
+                            await Promise.all([purge_recommendations(thread.id)
+                                , purge_posts(thread.id), refresh_thread_date(thread.id)]);
                             console.log("No items to be parsed for recommendations");
                             req.flash('info_msg', 'No new recommendations posted yet');
                             res.redirect('/micro/threads/' + thread.id + '/recommendations');
                         }
                         fetch_links(items, thread.id, function(recs){
                             var recommendations = [];
+                            let is_error = false;
                             recs.forEach((link, linkIndex) => {
                                 fetch_title(link.url, function(output){
                                     var temp_title = '';
@@ -133,21 +197,23 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
                                     }
                                     
                                     new Recommendation(newRecommendation)
-                                    .save()
-                                    .then(rec => {
+                                    .save(async function(err, rec){
+                                        if(err) {
+                                            is_error = true;
+                                        }
                                         recommendations.push(rec);    
                                         if(recommendations.length == recs.length){
+                                            await Promise.all([purge_recommendations(thread.id)
+                                                , purge_posts(thread.id), refresh_thread_date(thread.id)]);
+
                                             console.log("Parsed " + recs.length + " items successfully as recommendations");
-                                            req.flash('success_msg', 'Thread Refreshed Successfully');
+
+                                            if(is_error) req.flash('info_msg', 'Thread Refreshed Successfully, with some failures');
+                                            else req.flash('success_msg', 'Thread Refreshed Successfully');
+
                                             res.redirect('/micro/threads/' + thread.id + '/recommendations');
                                         }
                                     })
-                                    .catch(function(error){
-                                        console.warn("Some links details cannot be fetched, possible reason - no title.");
-                                        req.flash('info_msg', 'Thread Refreshed Successfully, with some failures');
-                                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
-                                    });;
-        
                                 });
                             });
                         });

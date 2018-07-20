@@ -14,6 +14,10 @@ const ThreadSchema = new Schema({
         type: String,
         required: true
     },
+    created_by: {
+        type: String,
+        required: false
+    },
     discover: {
         type: Boolean,
         default: false,
@@ -22,7 +26,7 @@ const ThreadSchema = new Schema({
     date:{
         type: Date,
         default: Date.now
-    }    
+    }
 })
 
 mongoose.model('threads', ThreadSchema);
