@@ -116,6 +116,7 @@ router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
         const author = user_info.author;
         const posts = await fetch_posts_by_type(user_info.items);
 
+        author.avatar = author.avatar.toString().split("?")[0];
         author.userid = req.params.userid;
         author.bio = marked(user_info._microblog.bio);
 
@@ -164,6 +165,42 @@ router.post('/user/follow', ensureAuthenticated, async (req, res) => {
         errors.push({text:"Failed to follow the user"});
         req.flash('error_msg', 'Failed to follow the user');
         res.redirect('/discover/user');
+    }
+});
+
+const parse_interactions = function(interactions){
+    var recs = new Map();
+    return new Promise((resolve, reject) => {
+        try {
+            interactions.forEach(item => {
+
+            });
+            resolve(recs)
+        } catch (error) {
+            reject(error);
+        }
+    });    
+}
+
+// Discover User Route
+router.get('/thread', ensureAuthenticated, async (req, res, next) => {
+    let errors = [];
+    try {
+        var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+
+        const stream = await fetch_stream(app_token);
+        const posts = await fetch_posts_by_type(stream.items);
+        var interactions = posts.interactions;
+
+        const threads_recs = await parse_interactions(interactions);
+
+
+    } catch (error) {
+        console.log(error);
+        errors.push({text:"Failed to fetch thread discover"});
+        res.render('discover/landing', {
+            errors: errors
+        })        
     }
 });
 
