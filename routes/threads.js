@@ -98,7 +98,6 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
                 post_link = 'http://micro.blog/posts/conversation?id=' + thread.postId;
             }
     
-            console.log(post_link);
             request.get({
                 url: post_link, 
                 headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
@@ -142,7 +141,12 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
                                             req.flash('success_msg', 'Thread Refreshed Successfully');
                                             res.redirect('/micro/threads/' + thread.id + '/recommendations');
                                         }
-                                    });
+                                    })
+                                    .catch(function(error){
+                                        console.warn("Some links details cannot be fetched, possible reason - no title.");
+                                        req.flash('info_msg', 'Thread Refreshed Successfully, with some failures');
+                                        res.redirect('/micro/threads/' + thread.id + '/recommendations');
+                                    });;
         
                                 });
                             });
@@ -152,7 +156,7 @@ router.get('/refresh/:id', ensureAuthenticated, (req, res) => {
             });         
         })   
     } catch (error) {
-        console.log(error);
+        console.error(error);
         req.flash('info_msg', 'Thread Refreshed Successfully, with some failures');
         res.redirect('/micro/threads/' + thread.id + '/recommendations');
     }    

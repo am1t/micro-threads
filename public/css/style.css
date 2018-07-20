@@ -4,6 +4,12 @@ body{
     font-family: "Libre Franklin";
     font-size: 16px;
 }
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
 .site-title{
     font-size: 35px;
     color: #000;
@@ -16,6 +22,10 @@ body{
 .author-name{
     font-size: 20px;
     text-transform: uppercase;
+}
+
+.author-bio{
+    font-size:18px;
 }
 
 .thread_banner{
@@ -73,14 +83,19 @@ body{
 a.edit_rec { color: deepskyblue}
 a:hover.edit_rec { color: #fff}
 
-.follow_btn {
+.follow-btn {
     float: right;
-    font-size: 20px
-    margin-right: 40px;
+    font-size: 18px;
+    margin: 10px 0px;
+    padding: 5px 20px;
 }
 
-.follow_btn a { padding: 5px 20px;color:white}
-.follow_btn a:hover {color: red}
+a .follow-btn { padding: 5px 20px;color:white}
+a:hover .follow-btn {color: red}
+
+.follow-link {padding:5px 0;font-size:20px;}
+.profile-link {font-size: 20px; color:darkgray;padding-left:2px;}
+a:hover.profile-link {color: red; text-decoration: none;}
 
 .recos_context{
     color: #000;

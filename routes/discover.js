@@ -1,10 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
-var request = require('request');
+const request = require('request');
 const passport = require('passport');
 const {ensureAuthenticated} = require('../helper/auth');
 const router = express.Router();
-var CryptoJS = require("crypto-js");
+const CryptoJS = require("crypto-js");
+const marked = require('marked');
 
 const {  fetch_stream, fetch_discover, fetch_following, fetch_user_information,
     fetch_users_from_stream, fetch_user_from_discover } = require('../helper/utils');
@@ -94,8 +95,8 @@ const fetch_posts_by_type = function(items){
                 var at_identifier = "<p><a href=\"https://micro.blog/";
 
                 if(content.startsWith(at_identifier)){
-                    interactions.push(content);
-                } else { original.push(content); }
+                    if(interactions.length < 10) interactions.push({content:content, url: item.url}) ;
+                } else { if(original.length < 10)  original.push({content:content, url: item.url}); }
             });
             posts = {interactions : interactions, originals : original}
             resolve(posts);
@@ -116,6 +117,7 @@ router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
         const posts = await fetch_posts_by_type(user_info.items);
 
         author.userid = req.params.userid;
+        author.bio = marked(user_info._microblog.bio);
 
         res.render('discover/user_info', {
             author: author,
@@ -129,6 +131,39 @@ router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
         res.render('discover/landing', {
             errors: errors
         })
+    }
+});
+
+//Follow user route
+router.post('/user/follow', ensureAuthenticated, async (req, res) => {
+    let errors = [];
+    let follow_api = 'http://micro.blog/users/follow';
+    var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+    const error_string = "Error while processing the request.";
+
+    try {
+        var userid = req.body.userid;
+        request.post(
+            {
+                url:follow_api, 
+                headers: {'Authorization': 'Token ' + app_token},
+                form:{username:userid}
+            }, function(error, response, body){
+                if(body.indexOf(error_string) != -1){
+                    console.error("Failed to follow the user");
+                    errors.push({text:"Failed to follow the user"});
+                    req.flash('error_msg', 'Failed to follow the user');
+                    res.redirect('/discover/user');
+                } else {
+                    req.flash('success_msg', 'Successfully followed ' + userid);
+                    res.redirect('/discover/user');
+                }
+            });
+    } catch (error) {
+        console.error(error);
+        errors.push({text:"Failed to follow the user"});
+        req.flash('error_msg', 'Failed to follow the user');
+        res.redirect('/discover/user');
     }
 });
 

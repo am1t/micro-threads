@@ -1,17 +1,40 @@
-<h2> Author Details: </h2>
-<img src='{{author.avatar}}' width="50px">
-<a href='{{author.url}}' style="font-size:25px">{{author.name}}</a>
-
-<a href='https://micro.blog/{{author.userid}}'>Follow</a>
+<div class="card">
+  <div class="card-header">
+    <img src='{{author.avatar}}' width="50px">
+    <a href='{{author.url}}' style="font-size:25px; padding-left: 20px;">{{author.name}}</a>
+    <a href="https://micro.blog/{{author.userid}}" class="profile-link" title="Profile on Micro.blog" target="_blank">
+        ({{author.userid}})
+    </a>
+  </div>
+  <form id="follow_request" action="/discover/user/follow" method="post" style="display: none">
+    <input type="hidden" name="userid" value="{{author.userid}}">
+  </form>
+  <div class="card-body">
+    <div class="card-subtitle author-bio">{{{author.bio}}}</div>
+    <div style="padding-top:10px;">
+        <a href="" class="follow-link" onclick="$('#follow_request').submit(); return false;">
+            Follow Now
+        </a>
+    </div>
+  </div>
+</div>
 <p/> <p/>
 
-<h2> Recent Orginal Posts </h2>
-{{#each originals}}
-    <div>{{.}}</div>
-{{/each}}
-
-<h2> Recent Interactions </h2>
+<h3 style="padding:5px 0; border-bottom: 2px solid indianred;"> Recent Interactions </h3>
+<ul class="list-group list-group-flush" style= "padding:20px 0;">
 {{#each interactions}}
-    <div>{{.}}</div>
+    <li class="list-group-item">
+        {{{content}}}
+    </li>
+{{else}}
+    <li class="list-group-item" style="color:darkgray;">No recent interactions</li>    
 {{/each}}
+</ul>
 
+<h3 style="padding:5px 0; border-bottom: 2px solid indianred;"> Recent Posts </h3>
+<ul class="list-group list-group-flush" style= "padding:20px 0;">
+{{#each originals}}
+    <li class="list-group-item">{{{content}}}</li>
+{{else}}
+    <li class="list-group-item" style="color:darkgray;">No recent posts</li>    
+{{/each}}
