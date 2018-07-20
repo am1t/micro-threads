@@ -4,5 +4,5 @@ if(process.env.NODE_ENV === 'production'){
         + process.env.DB_IP + ":" + process.env.DB_PORT + "/"
         + process.env.DB_SCHEMA}
 } else {
-    module.exports = {mongoURI: "mongodb://localhost/microthread-dev"}
+    module.exports = {mongoURI: "mongodb://localhost:27017/microthread-dev"}
 }
