@@ -22,7 +22,10 @@
 {{#each conversations}}
     <li class="list-group-item">
         {{{content_html}}}
-        <p class="rec_meta"><a href="https://micro.blog/post/{{id}}" target="_blank">Join the conversation</a></p>
+        <p class="rec_meta">
+            by <a href="https://micro.blog/{{author._microblog.username}}" style="color:slateblue" target="_blank">{{author._microblog.username}}</a>
+            • <a href="https://micro.blog/post/{{id}}" target="_blank">Join the conversation</a>
+        </p>
     </li>
 {{else}}
     <li class="list-group-item" style="color:darkgray;">No recent conversations</li>    
@@ -35,7 +38,10 @@
     {{#unless is_conversation}}
     <li class="list-group-item">
         {{{content}}}
-         <p class="rec_meta"><a href="https://micro.blog/post/{{id}}" target="_blank">Reply</a></p>
+        <p class="rec_meta">
+            by <a href="https://micro.blog/{{author}}" style="color:slateblue" target="_blank">{{author}}</a>
+            • <a href="https://micro.blog/post/{{id}}" target="_blank">Reply</a>
+        </p>
     </li>
     {{/unless}}
 {{else}}

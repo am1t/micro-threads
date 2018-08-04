@@ -101,7 +101,8 @@ const fetch_posts_by_type = function(items, limit){
                 } else { 
                     if(original.length < limit)  
                         original.push({id:item.id, content:content, url: item.url, 
-                            is_conversation: item._microblog.is_conversation}); 
+                            is_conversation: item._microblog.is_conversation,
+                            author:item.author._microblog.username}); 
                 }
             });
             posts = {interactions : interactions, originals : original}
