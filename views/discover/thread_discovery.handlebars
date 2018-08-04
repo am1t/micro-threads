@@ -1,0 +1,41 @@
+{{#if conversations}}
+    <div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Cheers!</h4>
+    <p>Successfully retrieved below threads from Micro.blog that you can be part of.
+        These are fetched by parsing your timeline for <span style="text-decoration:underline;">posts that spark conversations</span>. 
+        At the same time, home feed is parsed <span style="text-decoration:underline;">to find some original posts</span>.
+    </p>
+    <hr>
+    <p class="mb-0" style="padding-bottom:5px"><a href="#conversations">Recent Posts That Trigger Conversations</a></p>
+    <p class="mb-0" style="padding-bottom:5px"><a href="#original">Recent Posts That Are Original</a></p>
+    <p class="mb-0" style="padding-bottom:5px"><a href="/micro/threads">Explore Threads from Discover Emojitags</a></p>
+    </div>
+{{else}}
+    <div class="alert alert-warning" role="alert">
+    <h4 class="alert-heading">Dang it, no recommendations!</h4>
+    <p>Head over to <a href="/discover">user discovery</a> to follow some more good people at Micro.blog.</p>
+    </div>
+{{/if}}
+
+<h3 id="conversations" style="padding:5px 0; border-bottom: 2px solid crimson;"> Recent Posts That Trigger Conversations </h3>
+<ul class="list-group list-group-flush" style= "padding:20px 0;">
+{{#each conversations}}
+    <li class="list-group-item">
+        {{{content_html}}}
+        <p class="rec_meta"><a href="https://micro.blog/post/{{id}}" target="_blank">Join the conversation</a></p>
+    </li>
+{{else}}
+    <li class="list-group-item" style="color:darkgray;">No recent conversations</li>    
+{{/each}}
+</ul>
+
+<h3 id="original" style="padding:5px 0; border-bottom: 2px solid crimson;"> Recent Original Posts</h3>
+<ul class="list-group list-group-flush" style= "padding:20px 0;">
+{{#each posts}}
+    <li class="list-group-item">
+        {{{content}}}
+         <p class="rec_meta"><a href="https://micro.blog/post/{{id}}" target="_blank">Reply</a></p>
+    </li>
+{{else}}
+    <li class="list-group-item" style="color:darkgray;">No recent posts</li>    
+{{/each}}

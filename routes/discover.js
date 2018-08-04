@@ -27,8 +27,8 @@ router.get('/', (req, res) => {
 // User Login form post
 router.post('/signin', (req, res, next) => {
     let errors = [];
-    var check_api = 'http://micro.blog/users/is_following?username=' + req.body.userid;
-    var app_token = req.body.token;
+    let check_api = 'http://micro.blog/users/is_following?username=' + req.body.userid;
+    let app_token = req.body.token;
     const error_string = "Error while processing the request.";
     request.get({
         url: check_api, 
@@ -53,8 +53,8 @@ router.post('/signin', (req, res, next) => {
 router.get('/user', ensureAuthenticated, async (req, res, next) => {
     let errors = [];
     try {
-        var userid = req.user.userid;
-        var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+        let userid = req.user.userid;
+        let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
 
         const [stream,discover,following] = await Promise.all([
             fetch_stream(app_token), fetch_discover(app_token), fetch_following(userid, app_token)]);
@@ -63,7 +63,7 @@ router.get('/user', ensureAuthenticated, async (req, res, next) => {
             fetch_users_from_stream(stream, following), fetch_user_from_discover(discover, following)]);
         
 
-        var user_recs = {};
+        let user_recs = {};
         stream_recs.forEach(function(v, k ,m){
             user_recs[k] = "Interacts with: " + v;
         });
@@ -85,18 +85,18 @@ router.get('/user', ensureAuthenticated, async (req, res, next) => {
 });
 
 const fetch_posts_by_type = function(items){
-    var posts = {};
+    let posts = {};
     return new Promise((resolve, reject) => {
         try {
             let interactions = [];
             let original = [];
             items.forEach((item, itemIndex) => {
-                var content = item.content_html;
-                var at_identifier = "<p><a href=\"https://micro.blog/";
+                let content = item.content_html;
+                let at_identifier = "<p><a href=\"https://micro.blog/";
 
                 if(content.startsWith(at_identifier)){
-                    if(interactions.length < 10) interactions.push({content:content, url: item.url}) ;
-                } else { if(original.length < 10)  original.push({content:content, url: item.url}); }
+                    if(interactions.length < 10) interactions.push({id:item.id, content:content, url: item.url}) ;
+                } else { if(original.length < 10)  original.push({id:item.id, content:content, url: item.url}); }
             });
             posts = {interactions : interactions, originals : original}
             resolve(posts);
@@ -110,7 +110,7 @@ const fetch_posts_by_type = function(items){
 router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
     let errors = [];
     try {
-        var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+        let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
         const user_info = await fetch_user_information(app_token, req.params.userid);
 
         const author = user_info.author;
@@ -139,11 +139,11 @@ router.get('/user/:userid', ensureAuthenticated, async (req, res, next) => {
 router.post('/user/follow', ensureAuthenticated, async (req, res) => {
     let errors = [];
     let follow_api = 'http://micro.blog/users/follow';
-    var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+    let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
     const error_string = "Error while processing the request.";
 
     try {
-        var userid = req.body.userid;
+        let userid = req.body.userid;
         request.post(
             {
                 url:follow_api, 
@@ -168,33 +168,61 @@ router.post('/user/follow', ensureAuthenticated, async (req, res) => {
     }
 });
 
-const parse_interactions = function(interactions){
-    var recs = new Map();
-    return new Promise((resolve, reject) => {
-        try {
-            interactions.forEach(item => {
+const fetch_original = function(item, app_token) {
+    let conversation_api = 'http://micro.blog/posts/conversation?id=';    
+    const error_string = "Error while processing the request.";
 
-            });
-            resolve(recs)
-        } catch (error) {
-            reject(error);
-        }
-    });    
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: conversation_api + item.id, 
+            headers: {'Authorization': 'Token ' + app_token}
+        }, function (error, response, body) {
+            if(body.indexOf(error_string) == -1){
+                let thread_items = JSON.parse(body).items;
+                let original = thread_items[thread_items.length - 1];
+                resolve(original);
+            } else {
+                reject("Failed to load conversation");
+            }
+        });
+    });
+}
+
+const parse_interactions = function(interactions, app_token){
+    let promises = [];
+    interactions.forEach(item => { promises.push(fetch_original(item, app_token)) });
+    return new Promise((resolve, reject) => {
+        Promise.all(promises).then(originals => {
+            resolve(originals);
+        })
+        .catch(errors => {
+            reject(errors);
+        });
+    });
 }
 
 // Discover User Route
 router.get('/thread', ensureAuthenticated, async (req, res, next) => {
     let errors = [];
+    
     try {
-        var app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
-
+        let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
         const stream = await fetch_stream(app_token);
-        const posts = await fetch_posts_by_type(stream.items);
-        var interactions = posts.interactions;
+        const posts = await fetch_posts_by_type(stream);
+        let interactions = posts.interactions;
+        let org_posts = posts.originals;
 
-        const threads_recs = await parse_interactions(interactions);
-
-
+        let originals = await parse_interactions(interactions, app_token);
+        //let thread_recs = [...new Set(originals.map(item => item.id))];
+        let thread_recs = originals.filter((original, index, self) =>
+             index === self.findIndex((t) => (
+                t.id === original.id
+            ))
+        )
+        res.render('discover/thread_discovery', {
+            posts: org_posts,
+            conversations: thread_recs
+        });
     } catch (error) {
         console.log(error);
         errors.push({text:"Failed to fetch thread discover"});

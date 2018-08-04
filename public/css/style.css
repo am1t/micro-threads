@@ -49,7 +49,7 @@ img {
     margin-bottom: 0;
     text-transform: uppercase;
     text-align: center;
-    background-color: crimson;    
+    background-color: crimson;
 }
 
 .user_banner { background-color: green; text-transform: none; }
@@ -91,11 +91,11 @@ a:hover.edit_rec { color: #fff}
 }
 
 a .follow-btn { padding: 5px 20px;color:white}
-a:hover .follow-btn {color: red}
+a:hover .follow-btn {color: crimson}
 
 .follow-link {padding:5px 0;font-size:20px;}
 .profile-link {font-size: 20px; color:darkgray;padding-left:2px;}
-a:hover.profile-link {color: red; text-decoration: none;}
+a:hover.profile-link {color: crimson; text-decoration: none;}
 
 .recos_context{
     color: #000;
@@ -106,7 +106,7 @@ a:hover.profile-link {color: red; text-decoration: none;}
 }
 
 .recos_context a { color: #0056b3; }
-.recos_context a:hover { color: red; }
+.recos_context a:hover { color: crimson; }
 
 .rec_meta {
     color: #666;
@@ -114,6 +114,16 @@ a:hover.profile-link {color: red; text-decoration: none;}
     font-weight: 400;
     line-height: 1;
     margin: 15px 0 0;
+}
+
+.rec_meta a, .rec_meta a:hover{ 
+    color: #999;
+    text-decoration: none
+}
+
+.rec_meta a:hover{ 
+    color: crimson;
+    text-decoration: underline
 }
 
 .refresh_link a {
