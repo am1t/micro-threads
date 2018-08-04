@@ -47,16 +47,29 @@ router.get('/discover', (req, res) => {
 
 ///thread/:{{id}}
 router.get('/:id/recommendations', (req, res) => {
-    Thread.findById(req.params.id)
-    .then(thread => {
-        Recommendation.find({thread_id: req.params.id})
-        .sort({_id : 'desc'})
-        .exec((err, recs) => {
-            res.render('threads/recommendations', {
-                recs: recs
-            });
-        });
-    })
+    try {
+        Thread.findById(req.params.id)
+        .then(thread => {
+            var now_2hrs = new Date;
+            now_2hrs.setMinutes(now_2hrs.getMinutes()-120);
+            if(thread.date < now_2hrs){
+                console.log("Thread " + thread.title + " refreshed.")
+                res.redirect('/micro/threads/refresh/' + thread.id);
+            } else {
+                Recommendation.find({thread_id: req.params.id})
+                .sort({_id : 'desc'})
+                .exec((err, recs) => {
+                    res.render('threads/recommendations', {
+                        recs: recs
+                    });
+                });
+            }
+        })
+    } catch (error) {
+        console.error(error);
+        req.flash('error_msg', 'Failed to fetch discover threads');
+        res.redirect('/micro/threads/');        
+    }
 });
 
 ///thread/:{{id}}
@@ -86,7 +99,7 @@ router.get('/edit', ensureAuthenticated, (req, res) => {
 
 const purge_posts = function(thread_id){
     var date = new Date();
-    var daysToDeletion = 120;
+    var daysToDeletion = 60;
     var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
 
     return new Promise((resolve, reject) => {
@@ -106,7 +119,7 @@ const purge_posts = function(thread_id){
 
 const purge_recommendations = function(thread_id){
     var date = new Date();
-    var daysToDeletion = 120;
+    var daysToDeletion = 60;
     var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
 
     return new Promise((resolve, reject) => {
@@ -142,7 +155,7 @@ const refresh_thread_date = function(thread_id){
 }
 
 //Edit Threads Form for refresh
-router.get('/refresh/:id', ensureAuthenticated, async (req, res) => {
+router.get('/refresh/:id', async (req, res) => {
     try {
         Thread.findById(req.params.id)
         .sort({date: 'desc'})
