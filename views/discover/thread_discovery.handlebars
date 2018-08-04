@@ -32,10 +32,12 @@
 <h3 id="original" style="padding:5px 0; border-bottom: 2px solid crimson;"> Recent Original Posts</h3>
 <ul class="list-group list-group-flush" style= "padding:20px 0;">
 {{#each posts}}
+    {{#unless is_conversation}}
     <li class="list-group-item">
         {{{content}}}
          <p class="rec_meta"><a href="https://micro.blog/post/{{id}}" target="_blank">Reply</a></p>
     </li>
+    {{/unless}}
 {{else}}
     <li class="list-group-item" style="color:darkgray;">No recent posts</li>    
 {{/each}}

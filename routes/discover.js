@@ -84,7 +84,8 @@ router.get('/user', ensureAuthenticated, async (req, res, next) => {
     }
 });
 
-const fetch_posts_by_type = function(items){
+const fetch_posts_by_type = function(items, limit){
+    limit = typeof limit  !== 'undefined' ?  limit  : 10;
     let posts = {};
     return new Promise((resolve, reject) => {
         try {
@@ -95,8 +96,13 @@ const fetch_posts_by_type = function(items){
                 let at_identifier = "<p><a href=\"https://micro.blog/";
 
                 if(content.startsWith(at_identifier)){
-                    if(interactions.length < 10) interactions.push({id:item.id, content:content, url: item.url}) ;
-                } else { if(original.length < 10)  original.push({id:item.id, content:content, url: item.url}); }
+                    if(interactions.length < limit) 
+                        interactions.push({id:item.id, content:content, url: item.url}) ;
+                } else { 
+                    if(original.length < limit)  
+                        original.push({id:item.id, content:content, url: item.url, 
+                            is_conversation: item._microblog.is_conversation}); 
+                }
             });
             posts = {interactions : interactions, originals : original}
             resolve(posts);
@@ -208,7 +214,7 @@ router.get('/thread', ensureAuthenticated, async (req, res, next) => {
     try {
         let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
         const stream = await fetch_stream(app_token);
-        const posts = await fetch_posts_by_type(stream);
+        const posts = await fetch_posts_by_type(stream, 20);
         let interactions = posts.interactions;
         let org_posts = posts.originals;
 
