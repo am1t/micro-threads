@@ -5,6 +5,7 @@ var request = require('request');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
 const passport = require('passport');
 const mongoose = require('mongoose');
@@ -24,6 +25,9 @@ require('./config/passport')(passport);
 //DB config
 const database = require('./config/database');
 
+//Application config
+const appconfig = require('./config/appconfig');
+
 // Connect to Mongoose
 mongoose.connect(database.mongoURI, { useNewUrlParser: true })
 .then(() => console.log('MongoDB connected...'))
@@ -41,9 +45,14 @@ app.use(helmet());
 
 // Express Session middleware
 app.use(session({
-    secret: 'secret',
+    name: 'mtsession',
+    secret: appconfig.session_secret,
+    store: process.env.NODE_ENV === 'production' 
+        ? new RedisStore({url:appconfig.redis_url}) 
+        : new session.MemoryStore() ,
     resave: true,
-    saveUninitialized: true
+    rolling: true,
+    saveUninitialized: false
   }));
 
 app.use(passport.initialize());
