@@ -189,7 +189,8 @@ const fetch_original = function(item, app_token) {
                 let original = thread_items[thread_items.length - 1];
                 resolve(original);
             } else {
-                reject("Failed to load conversation");
+                console.log("Failed to load conversation for " + item.id);
+                resolve("");
             }
         });
     });
@@ -222,7 +223,7 @@ router.get('/thread', ensureAuthenticated, async (req, res, next) => {
         let originals = await parse_interactions(interactions, app_token);
         //let thread_recs = [...new Set(originals.map(item => item.id))];
         let thread_recs = originals.filter((original, index, self) =>
-             index === self.findIndex((t) => (
+            original !== "" && index === self.findIndex((t) => (
                 t.id === original.id
             ))
         )
