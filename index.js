@@ -43,10 +43,11 @@ app.use(methodOverride('_method'))
 
 app.use(helmet());
 
-// Express Session middleware
+// Express Session middleware: 2 weeks max age, redis store, resave, rolling
 app.use(session({
     name: 'mtsession',
     secret: appconfig.session_secret,
+    cookie: {maxAge: (14 * 24 * 60 * 60 * 1000)},    
     store: process.env.NODE_ENV === 'production' 
         ? new RedisStore({url:appconfig.redis_url}) 
         : new session.MemoryStore() ,
