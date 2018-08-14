@@ -99,7 +99,7 @@ router.get('/edit', ensureAuthenticated, (req, res) => {
 
 const purge_posts = function(thread_id){
     var date = new Date();
-    var daysToDeletion = 60;
+    var daysToDeletion = 15;
     var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
 
     return new Promise((resolve, reject) => {
@@ -119,7 +119,7 @@ const purge_posts = function(thread_id){
 
 const purge_recommendations = function(thread_id){
     var date = new Date();
-    var daysToDeletion = 60;
+    var daysToDeletion = 15;
     var deletionDate = new Date(date.setDate(date.getDate() - daysToDeletion));
 
     return new Promise((resolve, reject) => {
