@@ -81,9 +81,11 @@ const fetch_links = function(items, thread_id, onComplete = null) {
     if (onComplete) onComplete(recommendations);
 }
 
-const fetch_stream = function(apptoken){
+const fetch_stream = function(apptoken, before_id){
     const error_string = "Error while processing the request.";
-    var mb_api = "http://micro.blog/posts/all";
+
+    var mb_api =  before_id ? "http://micro.blog/posts/all?before_id="+ before_id 
+        : "http://micro.blog/posts/all";
     return new Promise((resolve, reject) => {
         request.get({
             url: mb_api, 

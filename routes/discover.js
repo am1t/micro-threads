@@ -212,13 +212,14 @@ const parse_interactions = function(interactions, app_token){
 // Discover User Route
 router.get('/thread', ensureAuthenticated, async (req, res, next) => {
     let errors = [];
-    
+    let before_id = req.query.before_id;
     try {
         let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
-        const stream = await fetch_stream(app_token);
+        const stream = await fetch_stream(app_token, before_id);
         const posts = await fetch_posts_by_type(stream, 20);
         let interactions = posts.interactions;
         let org_posts = posts.originals;
+        before_id = stream.slice(-1)[0].id;
 
         let originals = await parse_interactions(interactions, app_token);
         //let thread_recs = [...new Set(originals.map(item => item.id))];
@@ -229,7 +230,8 @@ router.get('/thread', ensureAuthenticated, async (req, res, next) => {
         )
         res.render('discover/thread_discovery', {
             posts: org_posts,
-            conversations: thread_recs
+            conversations: thread_recs,
+            before_id: before_id
         });
     } catch (error) {
         console.log(error);

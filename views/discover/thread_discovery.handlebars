@@ -1,14 +1,14 @@
 {{#if conversations}}
     <div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">Cheers!</h4>
-    <p>Successfully retrieved below threads from Micro.blog that you can be part of.
-        These are fetched by parsing your timeline for <span style="text-decoration:underline;">posts that spark conversations</span>. 
-        At the same time, home feed is parsed <span style="text-decoration:underline;">to find some original posts</span>.
-    </p>
-    <hr>
-    <p class="mb-0" style="padding-bottom:5px"><a href="#conversations" style="color:slateblue">Recent Posts That Trigger Conversations</a></p>
-    <p class="mb-0" style="padding-bottom:5px"><a href="#original" style="color:slateblue">Recent Posts That Are Original</a></p>
-    <p class="mb-0" style="padding-bottom:5px"><a href="/micro/threads" style="color:slateblue">Explore Threads from Discover Emojitags</a></p>
+        <h4 class="alert-heading">Cheers!</h4>
+        <p>Successfully retrieved below threads from Micro.blog that you can be part of.
+            These are fetched by parsing your timeline for <span style="text-decoration:underline;">posts that spark conversations</span>. 
+            At the same time, home feed is parsed <span style="text-decoration:underline;">to find some original posts</span>.
+        </p>
+        <hr>
+        <p class="mb-0" style="padding-bottom:5px"><a href="#conversations" style="color:slateblue">Recent Posts That Trigger Conversations</a></p>
+        <p class="mb-0" style="padding-bottom:5px"><a href="#original" style="color:slateblue">Recent Posts That Are Original</a></p>
+        <p class="mb-0" style="padding-bottom:5px"><a href="/micro/threads" style="color:slateblue">Explore Threads from Discover Emojitags</a></p>
     </div>
 {{else}}
     <div class="alert alert-warning" role="alert">
@@ -16,7 +16,7 @@
     <p>Head over to <a href="/discover">user discovery</a> to follow some more good people at Micro.blog.</p>
     </div>
 {{/if}}
-
+<a href="/discover/thread?before_id={{before_id}}" class="btn btn-primary" style="float:right;padding:10px 50px;margin-top:-10px;">Fetch More..</a>
 <h3 id="conversations" style="padding:5px 0; border-bottom: 2px solid crimson;"> Recent Posts That Trigger Conversations </h3>
 <ul class="list-group list-group-flush" style= "padding:20px 0;">
 {{#each conversations}}
@@ -47,3 +47,7 @@
 {{else}}
     <li class="list-group-item" style="color:darkgray;">No recent posts</li>    
 {{/each}}
+</ul>
+<a href="/discover/thread?before_id={{before_id}}" class="btn btn-primary" style="float:right;padding:10px 50px;margin-top:-10px;margin-bottom:10px;">Fetch More..</a>
+<center><div style="margin:10px;">~</div></center>
+<br>
