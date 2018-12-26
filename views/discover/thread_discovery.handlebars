@@ -20,11 +20,18 @@
 <h3 id="conversations" style="padding:5px 0; border-bottom: 2px solid crimson;"> Recent Posts That Trigger Conversations </h3>
 <ul class="list-group list-group-flush" style= "padding:20px 0;">
 {{#each conversations}}
+    <form id="favorite_post_{{id}}" action="/discover/thread/favorite" method="post" style="display: none">
+            <input type="hidden" name="postid" value="{{id}}">
+            <input type="hidden" name="isfav" value="{{_microblog.is_favorite}}">
+    </form>
     <li class="list-group-item">
         {{{content_html}}}
         <p class="rec_meta">
             by <a href="https://micro.blog/{{author._microblog.username}}" style="color:slateblue" target="_blank">{{author._microblog.username}}</a>
             • <a href="https://micro.blog/post/{{id}}" target="_blank">Join the conversation</a>
+            • <a href="" onclick="$('#favorite_post_{{id}}').submit(); return false;">
+                {{#if _microblog.is_favorite}} Unfavorite {{else}} Favorite {{/if}}
+            </a>            
         </p>
     </li>
 {{else}}
@@ -36,11 +43,18 @@
 <ul class="list-group list-group-flush" style= "padding:20px 0;">
 {{#each posts}}
     {{#unless is_conversation}}
+    <form id="favorite_post_{{id}}" action="/discover/thread/favorite" method="post" style="display: none">
+        <input type="hidden" name="postid" value="{{id}}">
+        <input type="hidden" name="isfav" value="{{is_favorite}}">
+    </form>    
     <li class="list-group-item">
         {{{content}}}
         <p class="rec_meta">
             by <a href="https://micro.blog/{{author}}" style="color:slateblue" target="_blank">{{author}}</a>
             • <a href="https://micro.blog/post/{{id}}" target="_blank">Reply</a>
+            • <a href="" onclick="$('#favorite_post_{{id}}').submit(); return false;">
+                {{#if is_favorite}} Unfavorite {{else}} Favorite {{/if}}
+            </a>              
         </p>
     </li>
     {{/unless}}

@@ -102,7 +102,8 @@ const fetch_posts_by_type = function(items, limit){
                     if(original.length < limit)  
                         original.push({id:item.id, content:content, url: item.url, 
                             is_conversation: item._microblog.is_conversation,
-                            author:item.author._microblog.username}); 
+                            author:item.author._microblog.username,
+                            is_favorite:item._microblog.is_favorite}); 
                 }
             });
             posts = {interactions : interactions, originals : original}
@@ -167,6 +168,57 @@ router.post('/user/follow', ensureAuthenticated, async (req, res) => {
                     res.redirect('/discover/user');
                 }
             });
+    } catch (error) {
+        console.error(error);
+        errors.push({text:"Failed to follow the user"});
+        req.flash('error_msg', 'Failed to follow the user');
+        res.redirect('/discover/user');
+    }
+});
+
+//Favorite post from discover
+router.post('/thread/favorite', ensureAuthenticated, async (req, res) => {
+    let errors = [];
+    let favorite_api = 'http://micro.blog/posts/favorites';
+    let app_token = CryptoJS.AES.decrypt(req.user.token, appconfig.seckey).toString(CryptoJS.enc.Utf8);
+    const error_string = "Error while processing the request.";
+
+    try {
+        let postid = req.body.postid;
+        if(req.body.isfav == "false"){
+            request.post(
+                {
+                    url:favorite_api, 
+                    headers: {'Authorization': 'Token ' + app_token},
+                    form:{id:postid}
+                }, function(error, response, body){
+                    if(body.indexOf(error_string) != -1){
+                        console.error("Failed to favorite the post");
+                        errors.push({text:"Failed to favorite the post"});
+                        req.flash('error_msg', 'Failed to favorite the post');
+                        res.redirect('/discover/thread');
+                    } else {
+                        req.flash('success_msg', 'Successfully favorited the post');
+                        res.redirect('/discover/thread');
+                    }
+            });
+        } else {
+            request.delete(
+                {
+                    url:favorite_api + '/' + postid, 
+                    headers: {'Authorization': 'Token ' + app_token},
+                }, function(error, response, body){
+                    if(body.indexOf(error_string) != -1){
+                        console.error("Failed to unfavorite the post");
+                        errors.push({text:"Failed to unfavorite the post"});
+                        req.flash('error_msg', 'Failed to unfavorite the post');
+                        res.redirect('/discover/thread');
+                    } else {
+                        req.flash('success_msg', 'Successfully unfavorited the post');
+                        res.redirect('/discover/thread');
+                    }
+            });
+        }
     } catch (error) {
         console.error(error);
         errors.push({text:"Failed to follow the user"});
