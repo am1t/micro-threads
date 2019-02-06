@@ -52,7 +52,7 @@ router.get('/:id/recommendations', (req, res) => {
         .then(thread => {
             var now_2hrs = new Date;
             now_2hrs.setMinutes(now_2hrs.getMinutes()-120);
-            if(thread.date < now_2hrs){
+            if(thread.discover == true && thread.date < now_2hrs){
                 console.log("Thread " + thread.title + " refreshed.")
                 res.redirect('/micro/threads/refresh/' + thread.id);
             } else {
