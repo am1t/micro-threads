@@ -174,7 +174,7 @@ router.get('/refresh/:id', async (req, res) => {
     
             request.get({
                 url: post_link, 
-                headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+                headers: {'Authorization': 'Token ' + app_token}
                 }, function (error, response, body) {
                 var thread_items = JSON.parse(body);
                 if(error){
@@ -299,7 +299,7 @@ router.post('/', ensureAuthenticated, (req, res) => {
     
                 request.get({
                         url: post_link, 
-                        headers: {'Authorization': 'Token DEB996A63C13C04E8387'}
+                        headers: {'Authorization': 'Token ' + app_token}
                     }, function (error, response, body) {
                     var thread_items = JSON.parse(body);
                     if(error){
