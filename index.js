@@ -5,7 +5,7 @@ var request = require('request');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
-var RedisStore = require('connect-redis')(session);
+const redis = require("redis");
 const flash = require('connect-flash');
 const passport = require('passport');
 const mongoose = require('mongoose');
@@ -49,7 +49,7 @@ app.use(session({
     secret: appconfig.session_secret,
     cookie: {maxAge: (14 * 24 * 60 * 60 * 1000)},    
     store: process.env.NODE_ENV === 'production' 
-        ? new RedisStore({url:appconfig.redis_url}) 
+        ? redis.createClient(process.env.REDIS_URL) 
         : new session.MemoryStore() ,
     resave: true,
     rolling: true,

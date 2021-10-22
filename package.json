@@ -12,7 +12,6 @@
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
     "connect-flash": "^0.1.1",
-    "connect-redis": "^3.3.3",
     "crypto-js": "^3.1.9-1",
     "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
@@ -21,9 +20,10 @@
     "linkscrape": "^1.0.0",
     "marked": "^0.4.0",
     "method-override": "^3.0.0",
-    "mongoose": "^5.2.4",
+    "mongoose": "^5.13.12",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
+    "redis": "^3.1.2",
     "request": "^2.87.0"
   }
 }
