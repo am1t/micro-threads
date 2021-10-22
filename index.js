@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
 var RedisStore = require('connect-redis')(session);
+const redis = require('redis')
 const flash = require('connect-flash');
 const passport = require('passport');
 const mongoose = require('mongoose');
@@ -28,6 +29,9 @@ const database = require('./config/database');
 //Application config
 const appconfig = require('./config/appconfig');
 
+// Redis Client
+let redisClient = redis.createClient()
+
 // Connect to Mongoose
 mongoose.connect(database.mongoURI, { useNewUrlParser: true })
 .then(() => console.log('MongoDB connected...'))
@@ -49,7 +53,7 @@ app.use(session({
     secret: appconfig.session_secret,
     cookie: {maxAge: (14 * 24 * 60 * 60 * 1000)},    
     store: process.env.NODE_ENV === 'production' 
-        ? new RedisStore({url:process.env.REDIS_URL}) 
+        ? new RedisStore({ client: redisClient }) 
         : new session.MemoryStore() ,
     resave: true,
     rolling: true,
