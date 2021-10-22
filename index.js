@@ -30,7 +30,7 @@ const database = require('./config/database');
 const appconfig = require('./config/appconfig');
 
 // Redis Client
-let redisClient = redis.createClient()
+let redisClient = redis.createClient(process.env.REDIS_URL)
 
 // Connect to Mongoose
 mongoose.connect(database.mongoURI, { useNewUrlParser: true })
