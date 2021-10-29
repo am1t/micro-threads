@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
 var request = require('request');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
@@ -30,7 +31,10 @@ const database = require('./config/database');
 const appconfig = require('./config/appconfig');
 
 // Redis Client
-let redisClient = redis.createClient(process.env.REDIS_URL)
+var redisClient;
+if(process.env.NODE_ENV === 'production') {
+    redisClient = redis.createClient(process.env.REDIS_URL)
+}
 
 // Connect to Mongoose
 mongoose.connect(database.mongoURI, { useNewUrlParser: true })
